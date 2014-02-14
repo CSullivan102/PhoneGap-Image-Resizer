@@ -1,4 +1,4 @@
-/**
+cordova.define("com.webXells.ImageResizer.ImageResizePlugin", function(require, exports, module) {/**
  * An Image Resizer Plugin for PhoneGap. Updated to fit Cordova 2+
  * The JavaScript based plugin fits both the Android and the iOS native plugins.
  * 
@@ -11,7 +11,6 @@
     cordova = require('cordova');
     
 var ImageResizer = function() {
-
 };
 
 ImageResizer.IMAGE_DATA_TYPE_BASE64 = "base64Image";
@@ -53,7 +52,7 @@ ImageResizer.prototype.resizeImage = function(success, fail, imageData, width,
         quality : options.quality ? options.quality : 70
     };
 
-    return cordova.exec(success, fail, "com.webXells.imageResizer",
+    return cordova.exec(success, fail, "ImageResizer",
             "resizeImage", [params]);
 }
 /**
@@ -76,7 +75,7 @@ ImageResizer.prototype.getImageSize = function(success, fail, imageData,
         data : imageData,
         imageDataType : options.imageType 
     };
-    return cordova.exec(success, fail, "com.webXells.imageResizer",
+    return cordova.exec(success, fail, "ImageResizer",
             "imageSize", [params]);
 }
 
@@ -110,18 +109,20 @@ ImageResizer.prototype.storeImage = function(success, fail, imageData, options) 
 		photoAlbum : options.photoAlbum ? options.photoAlbum : true
     };
 
-    return cordova.exec(success, fail, "com.webXells.imageResizer",
+    return cordova.exec(success, fail, "ImageResizer",
             "storeImage", [params]);
 }
 
-cordova.addConstructor(function() {
-	window.imageResizer = new ImageResizer();
+//cordova.addConstructor(function() {
+//	window.imageResizer = new ImageResizer();
+//
+//	// backwards compatibility
+//	window.plugins = window.plugins || {};
+//	window.plugins.imageResizer = window.imageResizer;
+//	console.log("Image Resizer Registered under window.imageResizer");
+//});
 
-	// backwards compatibility	
-	window.plugins = window.plugins || {};
-	window.plugins.imageResizer = window.imageResizer;
-	console.log("Image Resizer Registered under window.imageResizer");
+    console.log("Image Resizer Registered under window.imageResizer");
+    //var imageResizer = new ImageResizer();
+    module.exports = ImageResizer;
 });
-
-var imageResizer = new ImageResizer();
-module.exports = imageResizer;
