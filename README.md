@@ -1,4 +1,4 @@
-# Image Resizer plugin for Phonegap/Cordova 2.1+ #
+# Image Resizer plugin for Phonegap/Cordova 3.1+ #
 
 The plugin will resize images natively using phonegap/cordova's plugin architecture
 
