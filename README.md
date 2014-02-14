@@ -28,20 +28,22 @@ The plugin creates the object `window.imageResizer`. `window.plugins.imageResize
 To use, call one of the following, available methods:
 
 <pre>
-   window.imageResizer.resizeImage(successCallBack, failCallBack, imageData, width, height, options);
-   window.imageResizer.getImageSize(successCallBack, failCallBack, imageData, options);
-   window.imageResizer.storeImage(successCallBack, failCallBack, imageData, options);
+   var resizer = new imageResizer(); 
+   resizer.resizeImage(successCallBack, failCallBack, imageData, width, height, options);
+   resizer.getImageSize(successCallBack, failCallBack, imageData, options);
+   resizer.storeImage(successCallBack, failCallBack, imageData, options);
 </pre>
 
 For Example:
 <pre>
-    window.imageResizer.resizeImage(
+    var resizer = new imageResizer();
+    resizer.resizeImage(
       function(data) { 
         var image = document.getElementById('myImage');
         image.src = "data:image/jpeg;base64," + data.imageData; 
       }, function (error) {
         console.log("Error : \r\n" + error);
-      }, imageDataInBase64, 0.5, 0.5, {resizeType:ImageResizer.RESIZE_TYPE_FACTOR ,format:'jpg'});
+      }, imageDataInBase64, 0.5, 0.5, {resizeType:imageResizer.RESIZE_TYPE_FACTOR ,format:'jpg'});
 </pre>
 
 ### Android quirks and howto's ###
@@ -112,6 +114,9 @@ Store an image locally
 </pre>  
 
 ## RELEASE NOTES ##
+
+### 14/02/2014 ###
+Android update for 3.1 compatible.
 
 ### 15/04/2012 ###
 Android and iOS update, 2.1+ compatible. The application is not backwards-compatible, please either use older versions or a newer Phonegap :-)
