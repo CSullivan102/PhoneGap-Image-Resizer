@@ -10,7 +10,7 @@
  * 
  * @author Raanan Weber, webXells GmbH, http://www.webxells.com
  */
-package com.webXells.ImageResizer;
+package com.phonegap.plugins.ImageResizer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -19,22 +19,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.PluginResult;
+import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Base64;
 import android.util.Log;
 
 public class ImageResizePlugin extends CordovaPlugin {
 
+	private static final String LOG_TAG = "ImageResizePlugin";
+	
 	public static String IMAGE_DATA_TYPE_BASE64 = "base64Image";
 	public static String IMAGE_DATA_TYPE_URL = "urlImage";
 	public static String RESIZE_TYPE_FACTOR = "factorResize";
@@ -55,7 +59,7 @@ public class ImageResizePlugin extends CordovaPlugin {
 		String imageDataType;
 		String format;
 		Bitmap bmp;
-		Log.d("PLUGIN", action);
+		Log.d("LOG_TAG", action);
 		try {
 			// parameters (forst object of the json array)
 			params = data.getJSONObject(0);
@@ -67,17 +71,20 @@ public class ImageResizePlugin extends CordovaPlugin {
 			// which format should be used, defaults to jpg
 			format = params.has("format") ? params.getString("format")
 					: DEFAULT_FORMAT;
+
 			// create the Bitmap object, needed for all functions
 			bmp = getBitmap(imageData, imageDataType);
 		} catch (JSONException e) {
+			Log.e("JSONException: ", e.getMessage());
 			callbackContext.error(e.getMessage());
 			return false;
 		} catch (IOException e) {
+			Log.e("IOException: ", e.getMessage());
 			callbackContext.error(e.getMessage());
 			return false;
 		}
 		// resize the image
-		Log.d("PLUGIN", "passed init");
+		Log.d("LOG_TAG", "passed init");
 		if (action.equals("resizeImage")) {
 			try {
 				double widthFactor;
@@ -119,6 +126,7 @@ public class ImageResizePlugin extends CordovaPlugin {
 				callbackContext.success(res);
 				return true;
 			} catch (JSONException e) {
+				Log.e("e: ", e.getMessage());
 				callbackContext.error(e.getMessage());
 				return false;
 			}
@@ -141,15 +149,25 @@ public class ImageResizePlugin extends CordovaPlugin {
 				String filename = params.getString("filename");
 				filename = (filename.contains(".")) ? filename : filename + "."
 						+ format;
-				String directory = params.getString("directory");
-				directory = directory.startsWith("/") ? directory : "/"
-						+ directory;
+				String directory = params.getString("directory");				
+				boolean galleriesMode = params.getBoolean("photoAlbum");
+				
+				File file;
+				if (galleriesMode) {
+					File gallay = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+					// store the file locally using the external storage directory
+					file = new File(gallay, filename);
+				} else {
+					directory = directory.startsWith("/") ? directory : "/"
+							+ directory;
+					directory = Environment.getExternalStorageDirectory().toString() + directory;
+					file = new File(directory, filename);
+				}
+
 				int quality = params.getInt("quality");
 
 				OutputStream outStream;
 				// store the file locally using the external storage directory
-				File file = new File(Environment.getExternalStorageDirectory()
-						.toString() + directory, filename);
 				try {
 					outStream = new FileOutputStream(file);
 					if (format.equals(FORMAT_PNG)) {
@@ -161,6 +179,9 @@ public class ImageResizePlugin extends CordovaPlugin {
 					}
 					outStream.flush();
 					outStream.close();
+					if (galleriesMode){
+						scanPhoto(file);
+					}
 					JSONObject res = new JSONObject();
 					res.put("url", "file://" + file.getAbsolutePath());
 					callbackContext.success(res);
@@ -178,6 +199,17 @@ public class ImageResizePlugin extends CordovaPlugin {
 		return false;
 	}
 
+	/* Invoke the system's media scanner to add your photo to the Media Provider's database, 
+	 * making it available in the Android Gallery application and to other apps. 
+	 * copy from https://github.com/devgeeks/Canvas2ImageDemo */
+	private void scanPhoto(File imageFile)
+	{
+		Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+	    Uri contentUri = Uri.fromFile(imageFile);
+	    mediaScanIntent.setData(contentUri);	      		  
+	    cordova.getActivity().sendBroadcast(mediaScanIntent);
+	} 
+	
 	public Bitmap getResizedBitmap(Bitmap bm, float widthFactor,
 			float heightFactor) {
 		int width = bm.getWidth();
@@ -196,12 +228,14 @@ public class ImageResizePlugin extends CordovaPlugin {
 			throws IOException {
 		Bitmap bmp;
 		if (imageDataType.equals(IMAGE_DATA_TYPE_BASE64)) {
+			Log.e("in the IMAGE_DATA_TYPE_BASE64 ", imageDataType);
 			byte[] blob = Base64.decode(imageData, Base64.DEFAULT);
 			bmp = BitmapFactory.decodeByteArray(blob, 0, blob.length);
 		} else {
 			File imagefile = new File(imageData);
 			FileInputStream fis = new FileInputStream(imagefile);
 			bmp = BitmapFactory.decodeStream(fis);
+			
 		}
 		return bmp;
 	}
