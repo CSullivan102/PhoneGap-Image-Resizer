@@ -1,4 +1,3 @@
-cordova.define("com.webXells.imageResizer.ImageResizePlugin", function(require, exports, module) {/*global cordova*/
 /**
  * An Image Resizer Plugin for PhoneGap. Updated to fit Cordova 2+
  * The JavaScript based plugin fits both the Android and the iOS native plugins.
@@ -37,7 +36,9 @@ ImageResizer.FORMAT_PNG = "png";
  *              pixelDensity : adjust image size for pixel density (2x pixels for retina on iOS)
  *              directory : directory relative to temporary directory of the app to store image
  *              filename : filename of stored resized image
- *              photoAlbum : whether to store the image in the photo album (1) or temporary directory of the app (0)
+ *              photoAlbum : store the image in the photo album (true) or temporary directory of the app (false)
+ *                           it works with 'storeImage' is true
+ *                           photoAlbum mood will override 'directory' mode
  * @returns JSON Object with the following parameters:
  *              imageData : Base64 of the resized image || OR filename if storeImage = 1
  *              height : height of the resized image
@@ -54,14 +55,14 @@ ImageResizer.prototype.resizeImage = function(success, fail, imageData, width, h
         width: width ? width : 0,
         height: height ? height : 0,
         format: options.format ? options.format : ImageResizer.FORMAT_JPG,
-        imageDataType: options.imageType ? options.imageType : ImageResizer.IMAGE_DATA_TYPE_BASE64,
+        imageDataType: options.imageType ? options.imageType : ImageResizer.IMAGE_DATA_TYPE_URL,
         resizeType: options.resizeType ? options.resizeType : ImageResizer.RESIZE_TYPE_MAX_PIXEL,
         quality: options.quality ? options.quality : 75,
-        storeImage: (typeof options.storeImage !== "undefined") ? options.storeImage : 0,
-        pixelDensity: (typeof options.pixelDensity !== "undefined") ? options.pixelDensity : 1,
+        storeImage: (typeof options.storeImage !== "undefined") ? options.storeImage : false,
+        pixelDensity: (typeof options.pixelDensity !== "undefined") ? options.pixelDensity : false,
         directory: options.directory ? options.directory : "",
         filename: options.filename ? options.filename : "",
-        photoAlbum: (typeof options.photoAlbum !== "undefined") ? options.photoAlbum : 0
+        photoAlbum: (typeof options.photoAlbum !== "undefined") ? options.photoAlbum : false
     };
 
 	if (params.filename && params.filename.indexOf('.') > -1) {
@@ -70,7 +71,6 @@ ImageResizer.prototype.resizeImage = function(success, fail, imageData, width, h
     		params.format = fileFormat.toLowerCase();
     	}
     }
-
     return cordova.exec(success, fail, "ImageResizePlugin", "resizeImage", [params]);
 };
 
@@ -123,14 +123,13 @@ ImageResizer.prototype.storeImage = function(success, fail, imageData, options) 
         format: options.format ? options.format : ImageResizer.FORMAT_JPG,
         imageDataType: options.imageType ? options.imageType : ImageResizer.IMAGE_DATA_TYPE_URL,
         filename: options.filename,
-        directory: options.directory ? options.directory: "",
+        directory: options.directory ? options.directory : "",
         quality: options.quality ? options.quality : 75,
         photoAlbum: (typeof options.photoAlbum !== "undefined") ? options.photoAlbum : false
     };
-
+    console.log('before store Image');
     return cordova.exec(success, fail, "ImageResizePlugin", "storeImage", [params]);
 };
 
 window.ImageResizer = ImageResizer;
 window.imageResizer = new ImageResizer();
-});

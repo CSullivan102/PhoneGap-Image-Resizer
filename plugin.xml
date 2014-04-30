@@ -10,8 +10,6 @@
     The plugin will resize images natively using phonegap/cordova's plugin architecture
   </description>
 
-
-
     <engines>
       <engine name="cordova" version=">=3.0.0" />
     </engines>  
@@ -20,13 +18,13 @@
     <platform name="android">
       <config-file target="res/xml/config.xml" parent="/*">
 			<feature name="ImageResizer">
-				<param name="android-package" value="com.webXells.ImageResizer.ImageResizePlugin" />
+				<param name="android-package" value="com.phonegap.plugins.ImageResizer" />
 			</feature>       
       </config-file>
 
-      <source-file src="src/Android/com/webXells/ImageResizer/ImageResizePlugin.java" target-dir="src/com/webXells/ImageResizer/" />
+      <source-file src="src/Android/com/phonegap/plugins/ImageResizer/ImageResizePlugin.java" target-dir="src/com/phonegap/plugins/ImageResizer/" />
       <js-module src="www/imageresize.js" name="imageresizer">
-          <clobbers target="window.imageResizer" />
+          <clobbers target="plugins.imageResizer" />
       </js-module>
     </platform>
 
