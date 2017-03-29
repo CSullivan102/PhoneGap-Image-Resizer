@@ -144,6 +144,15 @@
             path = [[NSURL URLWithString:urlString] path];
         }
     }
+    if (path == nil) {
+        if ([urlString hasPrefix:@"http://localhost"]) {
+            NSString *prefix = [self.commandDelegate.settings objectForKey:[@"LocalhostPrefix" lowercaseString]];
+            if (prefix != nil) {
+                NSRange urlRange = NSMakeRange(prefix.length, urlString.length - prefix.length);
+                path = [urlString substringWithRange:urlRange];
+            }
+        }
+    }    
     return path;
 }
 
