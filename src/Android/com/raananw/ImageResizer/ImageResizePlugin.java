@@ -28,9 +28,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Base64;
 import android.util.Log;
@@ -98,9 +100,9 @@ public class ImageResizePlugin extends CordovaPlugin {
                 byte[] blob = Base64.decode(imageData, Base64.DEFAULT);
                 bmp = BitmapFactory.decodeByteArray(blob, 0, blob.length, options);
             } else {
-                URI uri = new URI(imageData);
-                File imageFile = new File(uri);
-                bmp = BitmapFactory.decodeFile(imageFile.getAbsolutePath(), options);
+                Uri uri = Uri.parse(imageData);
+                Context context = ImageResizePlugin.this.cordova.getActivity().getApplicationContext(); 
+                bmp = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options);
             }
             return bmp;
         }
